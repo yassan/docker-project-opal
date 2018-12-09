@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  redmine:
+    image: 'sameersbn/redmine:3.4.6'
+    depends_on:
+      - postgres
+    environment:
+      - TZ=${TIME_ZONE}
+      
+      - USERMAP_UID=1000
+      - USERMAP_GID=1000
+      
+      - DB_ADAPTER=postgresql
+      - DB_ENCODING=utf8  
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+
+      - REDMINE_PORT=443
+      - REDMINE_HTTPS=true
+      - REDMINE_RELATIVE_URL_ROOT=/redmine
+      - REDMINE_SECRET_TOKEN=${REDMINE_SECRET_TOKEN}
+
+      - REDMINE_SUDO_MODE_ENABLED=false
+
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - ./redmine:/home/redmine/data
+    
+  postgres:
+    restart: always
+    image: sameersbn/postgresql:9.6-4
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=false
+  
+      - TZ=${TIME_ZONE}
+      
+      - DB_PORT=${DB_PORT}
+    # postgresロールのPW
+      - PG_PASSWORD=${DB_PASS}
+    # 初期に作成するロール    
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    volumes:
+      - ./postgres:/var/lib/postgresql
